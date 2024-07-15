@@ -74,13 +74,14 @@ def analice():
             clasificador.actualiza_tarifa()
             
             st.write('Se concluyó la actualización de las tarifas')
-            
+
+            st.write('Process terminado! Puede descargar el archivo actualizado')
             st.write('---')
 
             clasificador.export_to_excel()
             #df_xlsx = to_excel(df_test3)
         else: 
-            st.write('Sube el archivo de excel ..')
+            st.write('Suba el archivo de excel ..')
         
         st.write('---')
     return 0   
