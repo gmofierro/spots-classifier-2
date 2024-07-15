@@ -66,6 +66,8 @@ def analice():
             ## Se tiene en df_test3 los registros con el ALCANCE ya determinado
             ## Una vez que ya se determinó el ALCANCE se hace la..
             ## Implementación para cálculo de las tarifas 
+            
+            st.write('Iniciando la actualización de las tarifas... espere')
 
             clasificador.configurar_archivos_para_tarifas() ## se lee el archivo de excel con la tarifas por sede y los canales por Sede
 

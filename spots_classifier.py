@@ -44,14 +44,14 @@ class SpotsClassifier:
     return 0
 
   def print_initial_condition(self):
-    print(self.fileName)
-    print(self.lista_nacionales)
-    print(self.lista_asociados)
-    print(self.lista_locales)
+    #GFM print(self.fileName)
+    #GFM print(self.lista_nacionales)
+    #GFM print(self.lista_asociados)
+    #GFM print(self.lista_locales)
     
     
     #print(self.df_test3)
-    print (self.df_spots_fecha_ordenado)
+    #GFM print (self.df_spots_fecha_ordenado)
     ## print(self.df_canales_nacionales)
 
     return 0
@@ -71,7 +71,7 @@ class SpotsClassifier:
     self.df_test3 = pd.concat([self.df_test, self.df_test2], axis=1)
     #print(df_test3)
 
-    print('Configura_fechas_OK')
+    #GFM print('Configura_fechas_OK')
 
     return 0 ## self.df_test3
 
@@ -90,7 +90,7 @@ class SpotsClassifier:
     self.df_spots_fecha_ordenado.sort_values(['VERSION','FECHA_NEW'], ascending=True, inplace= True)
 
 
-    print('OK... filtra_df-spots')
+    # GFM print('OK... filtra_df-spots')
     return 0 ## df_spots_fecha_ordenado
 
   def ordenar_spots_fecha(self):
@@ -163,7 +163,7 @@ class SpotsClassifier:
       fecha = self.df_test3.loc[i,'FECHA_NEW']
       if [canal, version, fecha] in self.lista_nacionales:
         self.df_test3.loc[i,'SELECCIÓN'] = 'NACIONAL'
-    print('OK .. Actualizado nacionales')
+    #GFM print('OK .. Actualizado nacionales')
 
   # actualizar el alcance para Asociados
   def actualiza_alcance_para_asociados(self):
@@ -174,7 +174,7 @@ class SpotsClassifier:
       if [canal, version, fecha] in self.lista_asociados:
         self.df_test3.loc[i,'SELECCIÓN'] = 'N'
 
-    print ('OK .. Actualizado Asociados')   
+    #GFM print ('OK .. Actualizado Asociados')   
     return 0
   # ---------------
   #Actualiza el alcance para los registros locales
@@ -189,7 +189,7 @@ class SpotsClassifier:
         self.df_test3.loc[i,'SELECCIÓN'] = 'LOCAL'
       ## else:
         ## print(f'elemento: {[canal, version, fecha]} NO es LOCAL..')
-    print('OK..LOCALES')
+    #GFM print('OK..LOCALES')
 
     return 0
 
@@ -259,17 +259,18 @@ class SpotsClassifier:
           j = j + 1
         k = k + 1
       
-      if i % 150 == 0:
-        print(f'.{i}.')
-      else:
-        print (f'.{i}.', end="")  
+      #GFM if i % 150 == 0:
+      #GFM  print(f'.{i}.')
+      #GFMelse:
+      #GFM  print (f'.{i}.', end="")  
+      
       i = i + n_df
 
     #imprime la lista
-    print('-------------- lista de asociados -------------')
+    #GFM print('-------------- lista de asociados -------------')
     #print(lista_asociados)
         #imprime la lista
-    print('-------------- lista de Nacionales -------------')
+    # GFM print('-------------- lista de Nacionales -------------')
     #print(lista_nacionales)
 
     return 0
@@ -280,7 +281,7 @@ class SpotsClassifier:
   def export_to_excel(self):
     ## export el archivo df_test3 a excel
     self.df_test3.to_excel('df_test3.xlsx')
-    print('Se exportó el archivo de resultados: .. df_test3.xlsx')
+    #GFM print('Se exportó el archivo de resultados: .. df_test3.xlsx')
     return self.df_test3
 
   def actualiza_alcance_eventos(self):
@@ -393,23 +394,23 @@ class SpotsClassifier:
 
       if alcance == 'NACIONAL':
           #print (f'Alcance:: {alcance} -- hora: {hora}')
-        if  i% 150 == 0:
-          print('*')
-        else:
-          print('*', end="")
+        #GFM if  i% 150 == 0:
+        #GFM   print('*')
+        #GFM else:
+        #GFM  print('*', end="")
 
         self.df_test3.loc[i,'TARIFA'] = self.determina_tarifa_en_nacional_hora(hora) * factor
 
       elif alcance == 'LOCAL':
 
-        if  i% 150 == 0:
-          print('.')
-        else:
-          print('.' , end="")
+        #GFM if  i% 150 == 0:
+        #GFM  print('.')
+        #GFM else:
+        #GFM   print('.' , end="")
 
         self.df_test3.loc[i,'TARIFA'] = self.determina_tarifa_local(canal, hora) * factor
 
-    print('OK..tarifas actualizadas')
+    #GFM print('OK..tarifas actualizadas')
     return self.df_test3
 ## fin del método
 
