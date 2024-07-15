@@ -1,4 +1,5 @@
 import csv
+from os import path
 #from io import BytesIO
 import streamlit as st
 from streamlit_option_menu import option_menu
@@ -14,6 +15,7 @@ st.image("./images/imagen_portada.png", width=200)
 st.title("Determinación del alcance y tarifas de anuncios de TV")
 
 #df_test3 = pd.DataFrame()
+
 
 def load_file():        
     c30, c31 = st.columns([8, 1]) # 3 columnas: 10%, 60%, 10%
@@ -32,11 +34,15 @@ def export_file():
     #file_name = file.to_excel('df_test3.xlsx')
         #with open('CONCENTRADO TV AZTECA MAYO FINAL.xlsx', "rb") as template_file:
     
+    
     c30, c31 = st.columns([8, 1]) # 3 columnas: 10%, 60%, 10%
     with c30:
-        with open('df_test3.xlsx', "rb") as template_file:
-            template_byte = template_file.read()
-            st.download_button(label="Click to Download Template File", data=template_byte, file_name="template.xlsx", mime='application/octet-stream')  
+        if path.exists("df_test3.xlsx"):
+            with open('df_test3.xlsx', "rb") as template_file:
+                template_byte = template_file.read()
+                st.download_button(label="Click to Download Template File", data=template_byte, file_name="template.xlsx", mime='application/octet-stream')  
+        else: 
+            st.write('First Run Process..')
         return 0
 
 
@@ -79,20 +85,28 @@ def analice():
             st.write('---')
 
             clasificador.export_to_excel()
+            
             #df_xlsx = to_excel(df_test3)
         else: 
             st.write('Suba el archivo de excel ..')
+            
         
         st.write('---')
-    return 0   
+    return   
 
+def mostrar_tarifas_actuales():
+    st.write('---')
+    st.write('Mostrar las tarifas actuales ..')
+    st.write('---')
 
 with st.sidebar:
-    selected = option_menu("Main Menu", ["Home", 'Run process', 'Download Result File'], 
-        icons=['house', 'gear', ['play']], menu_icon="cast", default_index=0)
+    selected = option_menu("Main Menu", ["Home", 'Show Tarifas File','Run process', 'Download Result File'], 
+        icons=['house', 'gear', 'play', 'play'], menu_icon="cast", default_index=0)
     selected
     
-
+if selected == 'Show Tarifas File':
+    mostrar_tarifas_actuales()    
+    
 if selected == 'Run process':
         df = analice()    ## incluye cargar el archivo
         #GFM_1 export_file()
