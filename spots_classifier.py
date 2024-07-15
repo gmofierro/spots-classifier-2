@@ -378,7 +378,7 @@ class SpotsClassifier:
     return factor
 ## fin del método
 
-## método integrador para actualiza la tarifa de cada uno de los registros
+## método integrador para actualizar la tarifa de cada uno de los registros
   def actualiza_tarifa(self):
     for i in range(len(self.df_test3)):
       canal = self.df_test3.loc[i,'CANAL']
@@ -414,6 +414,14 @@ class SpotsClassifier:
     return self.df_test3
 ## fin del método
 
+
+def consulta_archivo_plazas_tarifas(self):
+  filename_plazas_tarifas = self.ruta + "tarifas_GFM.xlsx"
+  self.df_tarifas = pd.read_excel(filename_plazas_tarifas, sheet_name='PLAZAS_TARIFAS')
+  
+  return self.df_tarifas
+  
+  
 ### ============ FIN DE LA CLASE =================
  
 def main():
