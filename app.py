@@ -9,7 +9,8 @@ import pandas as pd
 st.set_page_config(page_title="Page Title", layout="wide")
 
 #st.set_page_config(page_icon="📊", page_title=" -- Spots Classifier -- !", layout="wide")
-st.image(".\images\imagen_portada.png", width=200)
+st.image("./images/imagen_portada.png", width=200)
+## st.image("imagen_portada.png", width=200)
 st.title("Determinación del alcance y tarifas de anuncios de TV")
 
 #df_test3 = pd.DataFrame()
