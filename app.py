@@ -96,7 +96,7 @@ def analice():
 
 def mostrar_tarifas_actuales():
     st.write('---')
-    st.write('Mostrar las tarifas actuales ..')
+    st.write('Las tarifas actuales ..')
     
     filename_plazas_tarifas = "./data/" + "tarifas_GFM.xlsx"
     df_tx = pd.read_excel(filename_plazas_tarifas, sheet_name='PLAZAS_TARIFAS')
@@ -104,6 +104,12 @@ def mostrar_tarifas_actuales():
     st.dataframe(df_tx)
     
     st.write('---')
+
+    st.write('Las tarifas Nacionales ..')
+    
+    df_nacional = pd.read_excel(filename_plazas_tarifas, sheet_name='TARIFAS_NACIONALES')
+    
+    st.dataframe(df_nacional)
 
 with st.sidebar:
     selected = option_menu("Main Menu", ["Home", 'Show Tarifas File','Run process', 'Download Result File'], 
