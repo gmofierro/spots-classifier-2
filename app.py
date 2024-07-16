@@ -14,9 +14,10 @@ st.image("./images/imagen_portada.png", width=200)
 ## st.image("imagen_portada.png", width=200)
 st.title("Determinación del alcance y tarifas de anuncios de TV")
 
-# Add custom CSS to hide the GitHub icon
+# Add custom CSS to hi
+# de the GitHub icon
 hide_github_icon = """
-#GithubIcon {
+  GithubIcon {
   visibility: hidden;
 }
 """
