@@ -14,15 +14,6 @@ st.image("./images/imagen_portada.png", width=200)
 ## st.image("imagen_portada.png", width=200)
 st.title("Determinación del alcance y tarifas de anuncios de TV")
 
-# Add custom CSS to hi
-# de the GitHub icon
-hide_github_icon = """
-  GithubIcon {
-  visibility: hidden;
-}
-"""
-st.markdown(hide_github_icon, unsafe_allow_html=True)
-
 #df_test3 = pd.DataFrame()
 
 
