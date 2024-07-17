@@ -319,8 +319,13 @@ class SpotsClassifier:
 
     df_filtrado_tarifa = self.df_tarifas[['PLAZA', 'TARIFA_SPOT']].query('@cond1 & @cond2 & @cond3')
     ## DEBUG print(f'en busca_tarifa_por_sede_hora: {df_filtrado_tarifa}')
-    result = df_filtrado_tarifa.TARIFA_SPOT.values[0]
     
+    result = -1
+    
+    if df_filtrado_tarifa.size > 0 :
+      result = df_filtrado_tarifa.TARIFA_SPOT.values[0]
+    else:
+       print(f'NO SE ENCONTRÓ LA TARIFA -> plaza: {plaza} hora: {hora}')
     ## DEBUG print(f'result{result}')
 
     return result
