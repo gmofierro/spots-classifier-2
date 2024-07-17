@@ -256,7 +256,10 @@ class SpotsClassifier:
               self.adicionar_en_lista_asociados(canal2, version2, fecha2)
             
           # fin de lógica de detección de nacionales y asociados
-          j = j + 1
+          if es_nacional: 
+            j = j + 1
+          else:
+            j = n_df  
         k = k + 1
       
       #GFM if i % 150 == 0:
