@@ -318,8 +318,10 @@ class SpotsClassifier:
     cond3 = hora < self.df_tarifas.HOR_FIN                 #['HOR_FIN']
 
     df_filtrado_tarifa = self.df_tarifas[['PLAZA', 'TARIFA_SPOT']].query('@cond1 & @cond2 & @cond3')
+    ## DEBUG print(f'en busca_tarifa_por_sede_hora: {df_filtrado_tarifa}')
     result = df_filtrado_tarifa.TARIFA_SPOT.values[0]
-    #print(result)
+    
+    ## DEBUG print(f'result{result}')
 
     return result
 ## fin del método
@@ -329,7 +331,9 @@ class SpotsClassifier:
     cond1 = canal == self.df_plazas_canales.CANAL
     df_filtrado_plaza = self.df_plazas_canales[cond1]
     #print(df_filtrado_plaza['PLAZA'])
-    plaza =  df_filtrado_plaza.PLAZA.values[0]    ###['PLAZA']                           #where[cond1 and cond2 and cond3]
+    plaza =  df_filtrado_plaza.PLAZA.values[0]    ###['PLAZA']    
+    ## DEBUG print(f'plaza: {plaza}')
+    #where[cond1 and cond2 and cond3]
     #print(f'Plaza : {plaza}')
     return plaza
 ## fin del método
@@ -342,8 +346,11 @@ class SpotsClassifier:
     cond2 = hora >= self.df_tarifas_nacionales.HOR_INI          # ['HOR_INI']
     cond3 = hora < self.df_tarifas_nacionales.HOR_FIN                 #['HOR_FIN']
 
+
     df_filtrado_tarifa_nal = self.df_tarifas_nacionales[['TARIFA_SPOT']].query('@cond1 & @cond2 & @cond3')
+    ## DEBUG print(f'filtrado antes: {df_filtrado_tarifa_nal}')
     result = df_filtrado_tarifa_nal.TARIFA_SPOT.values[0]
+    ## DEBUG print(f'filtrado: {result}')
     #print(result)
 
     return result
@@ -351,6 +358,7 @@ class SpotsClassifier:
 
 # Método para recuperar la Tarifa usando el CANAL como argumento
   def determina_tarifa_local(self, canal, hora):
+    ## DEBUG print(f'Buscando tarifa: canal: {canal} - hora: {hora}')
     plaza = self.busca_plaza_por_canal(canal)
     tarifa_x = self.busca_tarifa_por_sede_hora(plaza, hora)
     return tarifa_x

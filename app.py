@@ -27,6 +27,10 @@ def load_file():
             key="1",
         )
         
+    # guarda el archivo
+    
+    
+        
     return uploaded_file
 
 def export_file():    
@@ -60,6 +64,13 @@ def analice():
             file_name = uploaded_file.name
             
             #st.write(f'file: {file_name}')
+            
+            df_uploaded = pd.read_excel(uploaded_file)
+            
+            path_file = "./data/" + file_name
+            df_uploaded.to_excel(path_file, sheet_name="Hoja1")
+            
+            st.write('Se guardó el archivo')
             
             clasificador = SpotsClassifier(file_name)
     
