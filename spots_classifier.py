@@ -28,6 +28,8 @@ class SpotsClassifier:
     self.df_tarifas_nacionales = pd.DataFrame()  # El Dataframe para recuperar las tarifas nacionales
 
     #self.fileName = cadena
+    #self.file_log = '_spots_analizer.log'     ## Archivo de logs
+    self.file_log = open('_spots_analizer.log','w+')
 
   def initial_configuration(self):
 
@@ -40,10 +42,13 @@ class SpotsClassifier:
 
     self.ordenar_spots_fecha()
 
+    # archivo de logs
+    #self.file_log = open('_spots_analizer.log','w+')
+    
 
     return 0
 
-  def print_initial_condition(self):
+  def print_initial_condition():
     #GFM print(self.fileName)
     #GFM print(self.lista_nacionales)
     #GFM print(self.lista_asociados)
@@ -56,6 +61,13 @@ class SpotsClassifier:
 
     return 0
 
+  def write_a_log_reg(self, reg):
+    #file_log = open('_spots_analizer.log','a')
+    self.file_log.write(f'event: {reg}\n')
+    self.file_log.write('---------\n')
+    #self.file_log.close()
+    return 0
+  
   def configura_db_test_fechas(self):
     self.df_test['FECHA_NEW'] = self.df_test.FECHA.astype(str) + " " + self.df_test.HORA.astype(str)
     # convert the 'Date' column to datetime format -- usando la funcio datetime de pandas
@@ -316,6 +328,7 @@ class SpotsClassifier:
 
 ## método para ubicar la tarifa de acuerdo a la PLAZA
   def busca_tarifa_por_sede_hora(self, plaza, hora):
+    
     cond1 = plaza == self.df_tarifas.PLAZA           # ['PLAZA']
     cond2 = hora >= self.df_tarifas.HOR_INI          # ['HOR_INI']
     cond3 = hora < self.df_tarifas.HOR_FIN                 #['HOR_FIN']
@@ -327,8 +340,13 @@ class SpotsClassifier:
     
     if df_filtrado_tarifa.size > 0 :
       result = df_filtrado_tarifa.TARIFA_SPOT.values[0]
-    else:
-       print(f'NO SE ENCONTRÓ LA TARIFA -> plaza: {plaza} hora: {hora}')
+    else:    
+      msg = 'NO SE ENCONTRÓ LA TARIFA -> plaza:' + str(plaza) + ' ' + 'hora:' + ' ' + str(hora)
+      self.write_a_log_reg(msg)
+      
+      print(f'NO SE ENCONTRÓ LA TARIFA -> plaza: {plaza} - hora: {hora}')
+      
+      ## print(f'NO SE ENCONTRÓ LA TARIFA -> plaza: {plaza} hora: {hora}')
     ## DEBUG print(f'result{result}')
 
     return result
@@ -339,7 +357,15 @@ class SpotsClassifier:
     cond1 = canal == self.df_plazas_canales.CANAL
     df_filtrado_plaza = self.df_plazas_canales[cond1]
     #print(df_filtrado_plaza['PLAZA'])
-    plaza =  df_filtrado_plaza.PLAZA.values[0]    ###['PLAZA']    
+    plaza = -1 
+    if len(df_filtrado_plaza) > 0:
+      plaza =  df_filtrado_plaza.PLAZA.values[0]    ###['PLAZA']    
+    else:
+      msg = 'NO SE ENCONTRÓ LA PLAZA -> canal:' + str(canal) 
+      print(f'NO SE ENCONTRÓ LA PLAZA -> canal: {canal}')
+      self.write_a_log_reg(msg)
+      
+  
     ## DEBUG print(f'plaza: {plaza}')
     #where[cond1 and cond2 and cond3]
     #print(f'Plaza : {plaza}')
@@ -431,6 +457,7 @@ class SpotsClassifier:
 ## fin del método
 
 
+
 def consulta_archivo_plazas_tarifas(self):
   filename_plazas_tarifas = self.ruta + "tarifas_GFM.xlsx"
   self.df_tarifas = pd.read_excel(filename_plazas_tarifas, sheet_name='PLAZAS_TARIFAS')
@@ -438,6 +465,8 @@ def consulta_archivo_plazas_tarifas(self):
   return self.df_tarifas
   
   
+# Abre el archivo de logs y escribe un registro.
+
 ### ============ FIN DE LA CLASE =================
  
 def main():
