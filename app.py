@@ -80,17 +80,17 @@ def analice():
             if clasificador.actualiza_alcance_eventos() == 0:
                 st.write('Actualización del alcance OK..')
 
-            ## Se tiene en df_test3 los registros con el ALCANCE ya determinado
-            ## Una vez que ya se determinó el ALCANCE se hace la..
-            ## Implementación para cálculo de las tarifas 
-            
+                ## Se tiene en df_test3 los registros con el ALCANCE ya determinado
+                ## Una vez que ya se determinó el ALCANCE se hace la..
+                ## Implementación para cálculo de las tarifas 
+                
             st.write('Iniciando la actualización de las tarifas... espere')
 
             clasificador.configurar_archivos_para_tarifas() ## se lee el archivo de excel con la tarifas por sede y los canales por Sede
 
             clasificador.actualiza_tarifa()
-            
-            st.write('Se concluyó la actualización de las tarifas')
+                
+            st.write('Se concluyó la actualización de las tarifas')    
 
             st.write('Process terminado! Puede descargar el archivo actualizado')
             st.write('---')
@@ -109,18 +109,21 @@ def mostrar_tarifas_actuales():
     st.write('---')
     st.write('Las tarifas actuales ..')
     
-    filename_plazas_tarifas = "./data/" + "tarifas_GFM.xlsx"
+    filename_plazas_tarifas = "./data/" + "Tarifas2024_4_Actualizado.xlsx"
     df_tx = pd.read_excel(filename_plazas_tarifas, sheet_name='PLAZAS_TARIFAS')
     
-    st.dataframe(df_tx)
+    #df_tx1 = df_tx[['ID', 'CANAL', 'CIUDAD', 'TARIFA', 'TELEVISORA', 'HORARIO', 'DIA']]
+    #df_vista = df_tx[['CIUDAD',  'CANAL', 'TELEVISORA' ,'HORARIO', 'TARIFA', 'PERIODO', 'CIUDAD_CANAL', 'ALIAS_1_CANAL']]
+    df_vista =df_tx[['PLAZA',  'CANAL', 'TELEVISORA' ,'HORARIO', 'TARIFA']] 
+    st.dataframe(df_vista)
     
     st.write('---')
 
-    st.write('Las tarifas Nacionales ..')
+    #st.write('Las tarifas Nacionales ..')
     
-    df_nacional = pd.read_excel(filename_plazas_tarifas, sheet_name='TARIFAS_NACIONALES')
+    #df_nacional = pd.read_excel(filename_plazas_tarifas, sheet_name='TARIFAS_NACIONALES')
     
-    st.dataframe(df_nacional)
+    #st.dataframe(df_nacional)
 
 with st.sidebar:
     selected = option_menu("Main Menu", ["Home", 'Show Tarifas File','Run process', 'Download Result File'], 
@@ -131,9 +134,11 @@ if selected == 'Show Tarifas File':
     mostrar_tarifas_actuales()    
     
 if selected == 'Run process':
+    with st.spinner('Wait for it...'):
         df = analice()    ## incluye cargar el archivo
-        #GFM_1 export_file()
-        # Bloque 2
+    st.success('Done!')  
+    #GFM_1 export_file()
+    # Bloque 2
 
 if selected == 'Download Result File':
     c30, c31 = st.columns([8, 1]) # 3 columnas: 10%, 60%, 10%

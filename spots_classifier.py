@@ -313,13 +313,13 @@ class SpotsClassifier:
 #### Fin de métodos para implementar el Algoritmo para determinar el ALCANCE
 
   def configurar_archivos_para_tarifas(self):
-    filename_plazas_tarifas = self.ruta + "tarifas_GFM.xlsx"
+    filename_plazas_tarifas = self.ruta + "Tarifas2024_4_Actualizado.xlsx"
     self.df_tarifas = pd.read_excel(filename_plazas_tarifas, sheet_name='PLAZAS_TARIFAS')
 
     #filename_plazas_canales = "/content/drive/MyDrive/proy_anun/tarifas_GFM.xlsx"
     self.df_plazas_canales = pd.read_excel(filename_plazas_tarifas, sheet_name='PLAZAS_CANALES')
 
-    self.df_tarifas_nacionales = pd.read_excel(filename_plazas_tarifas, sheet_name='TARIFAS_NACIONALES')
+    #self.df_tarifas_nacionales = pd.read_excel(filename_plazas_tarifas, sheet_name='TARIFAS_NACIONALES')
 
 
 
@@ -330,16 +330,16 @@ class SpotsClassifier:
   def busca_tarifa_por_sede_hora(self, plaza, hora):
     
     cond1 = plaza == self.df_tarifas.PLAZA           # ['PLAZA']
-    cond2 = hora >= self.df_tarifas.HOR_INI          # ['HOR_INI']
-    cond3 = hora < self.df_tarifas.HOR_FIN                 #['HOR_FIN']
+    cond2 = hora >= self.df_tarifas.T_INICIO_HOR          # ['HOR_INI']
+    cond3 = hora < self.df_tarifas.T_FIN_HOR                #['HOR_FIN']
 
-    df_filtrado_tarifa = self.df_tarifas[['PLAZA', 'TARIFA_SPOT']].query('@cond1 & @cond2 & @cond3')
+    df_filtrado_tarifa = self.df_tarifas[['PLAZA', 'TARIFA']].query('@cond1 & @cond2 & @cond3')
     ## DEBUG print(f'en busca_tarifa_por_sede_hora: {df_filtrado_tarifa}')
     
     result = -1
     
     if df_filtrado_tarifa.size > 0 :
-      result = df_filtrado_tarifa.TARIFA_SPOT.values[0]
+      result = df_filtrado_tarifa.TARIFA.values[0]
     else:    
       msg = 'NO SE ENCONTRÓ LA TARIFA -> plaza:' + str(plaza) + ' ' + 'hora:' + ' ' + str(hora)
       self.write_a_log_reg(msg)
@@ -377,13 +377,13 @@ class SpotsClassifier:
   def determina_tarifa_en_nacional_hora(self, hora):
     plaza = 'NACIONAL'
     cond1 = plaza == self.df_tarifas_nacionales.PLAZA           # ['PLAZA']
-    cond2 = hora >= self.df_tarifas_nacionales.HOR_INI          # ['HOR_INI']
-    cond3 = hora < self.df_tarifas_nacionales.HOR_FIN                 #['HOR_FIN']
+    cond2 = hora >= self.df_tarifas_nacionales.T_INICIO_HOR         # ['HOR_INI']
+    cond3 = hora < self.df_tarifas_nacionales.T_FIN_HOR                 #['HOR_FIN']
 
 
-    df_filtrado_tarifa_nal = self.df_tarifas_nacionales[['TARIFA_SPOT']].query('@cond1 & @cond2 & @cond3')
+    df_filtrado_tarifa_nal = self.df_tarifas_nacionales[['TARIFA']].query('@cond1 & @cond2 & @cond3')
     ## DEBUG print(f'filtrado antes: {df_filtrado_tarifa_nal}')
-    result = df_filtrado_tarifa_nal.TARIFA_SPOT.values[0]
+    result = df_filtrado_tarifa_nal.TARIFA.values[0]
     ## DEBUG print(f'filtrado: {result}')
     #print(result)
 
@@ -434,32 +434,22 @@ class SpotsClassifier:
       duracion = self.df_test3.loc[i,'dur_min']*60 + self.df_test3.loc[i,'dur_seg']
       factor = self.determina_factor_aplicar_tarifa(duracion)
 
-      if alcance == 'NACIONAL':
-          #print (f'Alcance:: {alcance} -- hora: {hora}')
-        #GFM if  i% 150 == 0:
-        #GFM   print('*')
-        #GFM else:
-        #GFM  print('*', end="")
 
-        self.df_test3.loc[i,'TARIFA'] = self.determina_tarifa_en_nacional_hora(hora) * factor
+      if  i% 150 == 0:
+        print('.')
+      else:
+        print('.' , end="")
 
-      elif alcance == 'LOCAL':
+      self.df_test3.loc[i,'TARIFA'] = self.determina_tarifa_local(canal, hora) * factor
 
-        #GFM if  i% 150 == 0:
-        #GFM  print('.')
-        #GFM else:
-        #GFM   print('.' , end="")
-
-        self.df_test3.loc[i,'TARIFA'] = self.determina_tarifa_local(canal, hora) * factor
-
-    #GFM print('OK..tarifas actualizadas')
+      print('OK..tarifas actualizadas')
     return self.df_test3
 ## fin del método
 
 
 
 def consulta_archivo_plazas_tarifas(self):
-  filename_plazas_tarifas = self.ruta + "tarifas_GFM.xlsx"
+  filename_plazas_tarifas = self.ruta + "Tarifas2024_4_Actualizado.xlsx"
   self.df_tarifas = pd.read_excel(filename_plazas_tarifas, sheet_name='PLAZAS_TARIFAS')
   
   return self.df_tarifas
