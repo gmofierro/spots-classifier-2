@@ -327,11 +327,13 @@ class SpotsClassifier:
 ## fin del métod para configurar archivos para Tarifas
 
 ## método para ubicar la tarifa de acuerdo a la PLAZA
-  def busca_tarifa_por_sede_hora(self, plaza, hora):
+  def busca_tarifa_por_sede_hora(self, plaza, hora, minuto):
     
     cond1 = plaza == self.df_tarifas.PLAZA           # ['PLAZA']
-    cond2 = hora >= self.df_tarifas.T_INICIO_HOR          # ['HOR_INI']
-    cond3 = hora < self.df_tarifas.T_FIN_HOR                #['HOR_FIN']
+    cond2 = (hora * 60 + minuto) >= (self.df_tarifas.T_INICIO_HOR *60 + self.df_tarifas.T_INICIO_MIN )
+    #cond2 = hora >= self.df_tarifas.T_INICIO_HOR  and minuto >= self.df_tarifas.T_INICIO_MIN       # ['HOR_INI']
+    cond3 = ( hora * 60 + minuto)  < (self.df_tarifas.T_FIN_HOR * 60 + self.df_tarifas.T_FIN_MIN)
+    #cond3 = hora < self.df_tarifas.T_FIN_HOR and minuto < self.df_tarifas.T_FIN_MIN               #['HOR_FIN']
 
     df_filtrado_tarifa = self.df_tarifas[['PLAZA', 'TARIFA']].query('@cond1 & @cond2 & @cond3')
     ## DEBUG print(f'en busca_tarifa_por_sede_hora: {df_filtrado_tarifa}')
@@ -391,10 +393,10 @@ class SpotsClassifier:
 ## fin del método
 
 # Método para recuperar la Tarifa usando el CANAL como argumento
-  def determina_tarifa_local(self, canal, hora):
+  def determina_tarifa_local(self, canal, hora, minuto):
     ## DEBUG print(f'Buscando tarifa: canal: {canal} - hora: {hora}')
     plaza = self.busca_plaza_por_canal(canal)
-    tarifa_x = self.busca_tarifa_por_sede_hora(plaza, hora)
+    tarifa_x = self.busca_tarifa_por_sede_hora(plaza, hora, minuto)
     return tarifa_x
 ## fin del método
 
@@ -428,6 +430,7 @@ class SpotsClassifier:
       fecha = self.df_test3.loc[i,'FECHA_NEW']
       alcance = self.df_test3.loc[i,'SELECCIÓN']
       hora = fecha.hour
+      minuto = fecha.minute
 
       #print(f'CANAL: {canal} -- VERSION: {version} hora: {hora}')
 
@@ -440,7 +443,7 @@ class SpotsClassifier:
       else:
         print('.' , end="")
 
-      self.df_test3.loc[i,'TARIFA'] = self.determina_tarifa_local(canal, hora) * factor
+      self.df_test3.loc[i,'TARIFA'] = self.determina_tarifa_local(canal, hora, minuto) * factor
 
       print('OK..tarifas actualizadas')
     return self.df_test3
