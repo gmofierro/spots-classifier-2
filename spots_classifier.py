@@ -295,7 +295,10 @@ class SpotsClassifier:
   ## método que exporta los resultados a archivo de excel
   def export_to_excel(self):
     ## export el archivo df_test3 a excel
-    self.df_test3.to_excel('df_test3.xlsx')
+    ## SI Se desean eliminar os registros Asociados ('N') desde aquí
+    df_test_SinN = df_test3_sinN = self.df_test3.drop(self.df_test3[(self.df_test3['SELECCIÓN'] =='N')].index);
+    df_test3_sinN.to_excel('./data/df_test3_sinN.xlsx');
+    self.df_test3.to_excel('df_test3.xlsx');
     #GFM print('Se exportó el archivo de resultados: .. df_test3.xlsx')
     return self.df_test3
 
@@ -308,7 +311,14 @@ class SpotsClassifier:
     self.actualiza_alcance_para_nacionales()
     self.actualiza_alcance_para_asociados()
     self.actualiza_alcance_para_locales()
-
+    
+    # regresa todo el dataframe, pero omite los asociados
+    
+    #self.df_result = self.df_test3[self.df_test3['SELECCIÓN' == 'NACIONAL' AND 'SELECCIÓN' == 'LOCAL']]
+    #self.df_no_registros_N = self.df_test3[(self.df_test3['SELECCIÓN'] != 'N')]
+    df_test3_sinN = self.df_test3.drop(self.df_test3[(self.df_test3['SELECCIÓN'] =='N')].index)
+    df_test3_sinN.to_excel('./data/df_test3_sinN.xlsx');
+    
 
 #### Fin de métodos para implementar el Algoritmo para determinar el ALCANCE
 
@@ -346,7 +356,7 @@ class SpotsClassifier:
       msg = 'NO SE ENCONTRÓ LA TARIFA -> plaza:' + str(plaza) + ' ' + 'hora:' + ' ' + str(hora)
       self.write_a_log_reg(msg)
       
-      print(f'NO SE ENCONTRÓ LA TARIFA -> plaza: {plaza} - hora: {hora}')
+      ##print(f'NO SE ENCONTRÓ LA TARIFA -> plaza: {plaza} - hora: {hora}')
       
       ## print(f'NO SE ENCONTRÓ LA TARIFA -> plaza: {plaza} hora: {hora}')
     ## DEBUG print(f'result{result}')
@@ -364,7 +374,7 @@ class SpotsClassifier:
       plaza =  df_filtrado_plaza.PLAZA.values[0]    ###['PLAZA']    
     else:
       msg = 'NO SE ENCONTRÓ LA PLAZA -> canal:' + str(canal) 
-      print(f'NO SE ENCONTRÓ LA PLAZA -> canal: {canal}')
+      ##print(f'NO SE ENCONTRÓ LA PLAZA -> canal: {canal}')
       self.write_a_log_reg(msg)
       
   
@@ -438,14 +448,14 @@ class SpotsClassifier:
       factor = self.determina_factor_aplicar_tarifa(duracion)
 
 
-      if  i% 150 == 0:
-        print('.')
-      else:
-        print('.' , end="")
+      ##if  i% 150 == 0:
+      ##  print('.')
+      ##else:
+      ##  print('.' , end="")
 
       self.df_test3.loc[i,'TARIFA'] = self.determina_tarifa_local(canal, hora, minuto) * factor
 
-      print('OK..tarifas actualizadas')
+      ## print('OK..tarifas actualizadas')
     return self.df_test3
 ## fin del método
 

@@ -41,8 +41,8 @@ def export_file():
     
     c30, c31 = st.columns([8, 1]) # 3 columnas: 10%, 60%, 10%
     with c30:
-        if path.exists("df_test3.xlsx"):
-            with open('df_test3.xlsx', "rb") as template_file:
+        if path.exists("./data/df_test3_sinN.xlsx"):
+            with open('./data/df_test3_sinN.xlsx', "rb") as template_file:
                 template_byte = template_file.read()
                 st.download_button(label="Click to Download Template File", data=template_byte, file_name="template.xlsx", mime='application/octet-stream')  
         else: 
