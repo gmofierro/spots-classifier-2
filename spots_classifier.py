@@ -14,9 +14,11 @@ class SpotsClassifier:
     self.df_canales_nacionales = pd.DataFrame()
     self.df_canales_asociados = pd.DataFrame()
     self.df_canales_locales = pd.DataFrame()
+    
 
     #ruta = "/content/drive/MyDrive/proy_anun/"
     self.ruta = "./data/"  #dev\utils\spots_classifier.py
+    self.errors = 0
 
     ## self.fileName = self.ruta + "CONCENTRADO TV AZTECA MAYO FINAL_GFM_4000.xlsx"
 
@@ -27,9 +29,10 @@ class SpotsClassifier:
     self.df_plazas_canales = pd.DataFrame()   # El Dataframe para recuerar las los canales por plazas
     self.df_tarifas_nacionales = pd.DataFrame()  # El Dataframe para recuperar las tarifas nacionales
 
+    
     #self.fileName = cadena
     #self.file_log = '_spots_analizer.log'     ## Archivo de logs
-    self.file_log = open('_spots_analizer.log','w+')
+    self.file_log = open('./data/_spots_analizer.log','w+')
 
   def initial_configuration(self):
 
@@ -61,10 +64,17 @@ class SpotsClassifier:
 
     return 0
 
+
+  def f_errors(self):
+    return self.errors
+
   def write_a_log_reg(self, reg):
-    #file_log = open('_spots_analizer.log','a')
+    #file_log = open('.data/_spots_analizer.log','a')
+    
+    f1 = datetime.now()
     self.file_log.write(f'event: {reg}\n')
-    self.file_log.write('---------\n')
+    ##self.file_log.write('---------\n')
+    self.errors = self.errors + 1 
     #self.file_log.close()
     return 0
   
@@ -86,6 +96,8 @@ class SpotsClassifier:
     #GFM print('Configura_fechas_OK')
 
     return 0 ## self.df_test3
+
+
 
   ## Generar un dataFrame auxiliar para manipular solo el CANAL, VERSION (Spot) y la FECHA en formato datetime
   ## Integrar en un dataset CANAL, VERSION (El Anuncio) y la FECHA COMPLETA
@@ -297,8 +309,8 @@ class SpotsClassifier:
     ## export el archivo df_test3 a excel
     ## SI Se desean eliminar os registros Asociados ('N') desde aquí
     df_test_SinN = df_test3_sinN = self.df_test3.drop(self.df_test3[(self.df_test3['SELECCIÓN'] =='N')].index);
-    df_test3_sinN.to_excel('./data/df_test3_sinN.xlsx');
-    self.df_test3.to_excel('df_test3.xlsx');
+    df_test3_sinN.to_excel('./data/df_test3_sinN.xlsx')
+    self.df_test3.to_excel('df_test3.xlsx')
     #GFM print('Se exportó el archivo de resultados: .. df_test3.xlsx')
     return self.df_test3
 
@@ -339,7 +351,7 @@ class SpotsClassifier:
 ## método para ubicar la tarifa de acuerdo a la PLAZA
   def busca_tarifa_por_sede_hora(self, plaza, hora, minuto):
     
-    cond1 = plaza == self.df_tarifas.PLAZA           # ['PLAZA']
+    cond1 = plaza == self.df_tarifas.PLAZA  ## and canal == self.df_tarifas.ALIAS_CANAL         # ['PLAZA']
     cond2 = (hora * 60 + minuto) >= (self.df_tarifas.T_INICIO_HOR *60 + self.df_tarifas.T_INICIO_MIN )
     #cond2 = hora >= self.df_tarifas.T_INICIO_HOR  and minuto >= self.df_tarifas.T_INICIO_MIN       # ['HOR_INI']
     cond3 = ( hora * 60 + minuto)  < (self.df_tarifas.T_FIN_HOR * 60 + self.df_tarifas.T_FIN_MIN)
@@ -353,7 +365,7 @@ class SpotsClassifier:
     if df_filtrado_tarifa.size > 0 :
       result = df_filtrado_tarifa.TARIFA.values[0]
     else:    
-      msg = 'NO SE ENCONTRÓ LA TARIFA -> plaza:' + str(plaza) + ' ' + 'hora:' + ' ' + str(hora)
+      msg = 'TARIFA no se encontró -> PLAZA: ' + str(plaza) + ' ' + 'hora:' + ' ' + str(hora) + ' '  + 'minuto:' + ' ' + str(minuto)
       self.write_a_log_reg(msg)
       
       ##print(f'NO SE ENCONTRÓ LA TARIFA -> plaza: {plaza} - hora: {hora}')
@@ -366,6 +378,7 @@ class SpotsClassifier:
 
 ## método para buscar la plaza de acuerdo al CANAL que aplique
   def busca_plaza_por_canal(self, canal):
+    #cond1 = canal == self.df_plazas_canales.CANAL
     cond1 = canal == self.df_plazas_canales.CANAL
     df_filtrado_plaza = self.df_plazas_canales[cond1]
     #print(df_filtrado_plaza['PLAZA'])
@@ -373,7 +386,7 @@ class SpotsClassifier:
     if len(df_filtrado_plaza) > 0:
       plaza =  df_filtrado_plaza.PLAZA.values[0]    ###['PLAZA']    
     else:
-      msg = 'NO SE ENCONTRÓ LA PLAZA -> canal:' + str(canal) 
+      msg = 'NO SE ENCONTRÓ LA PLAZA PARA EL CANAL: -> canal:' + str(canal) 
       ##print(f'NO SE ENCONTRÓ LA PLAZA -> canal: {canal}')
       self.write_a_log_reg(msg)
       
@@ -386,20 +399,31 @@ class SpotsClassifier:
 
 ## método para determinar la tarifa para un evento NACIONAL de acuerdo a la HORA
 
-  def determina_tarifa_en_nacional_hora(self, hora):
+  def determina_tarifa_en_nacional_hora(self, canal, hora, minuto):
     plaza = 'NACIONAL'
-    cond1 = plaza == self.df_tarifas_nacionales.PLAZA           # ['PLAZA']
-    cond2 = hora >= self.df_tarifas_nacionales.T_INICIO_HOR         # ['HOR_INI']
-    cond3 = hora < self.df_tarifas_nacionales.T_FIN_HOR                 #['HOR_FIN']
+    
 
+    #cond1 = plaza == self.df_tarifas_nacionales.PLAZA           # ['PLAZA']
+    #cond2 = hora >= self.df_tarifas_nacionales.T_INICIO_HOR         # ['HOR_INI']
+    #cond3 = hora < self.df_tarifas_nacionales.T_FIN_HOR                 #['HOR_FIN']
 
-    df_filtrado_tarifa_nal = self.df_tarifas_nacionales[['TARIFA']].query('@cond1 & @cond2 & @cond3')
+    cond1 = plaza == self.df_tarifas.PLAZA and self.df_tarifas.ALIAS_CANAL == canal          # ['PLAZA']
+    cond2 = (hora * 60 + minuto) >= (self.df_tarifas.T_INICIO_HOR *60 + self.df_tarifas.T_INICIO_MIN )
+    #cond2 = hora >= self.df_tarifas.T_INICIO_HOR  and minuto >= self.df_tarifas.T_INICIO_MIN       # ['HOR_INI']
+    cond3 = ( hora * 60 + minuto)  < (self.df_tarifas.T_FIN_HOR * 60 + self.df_tarifas.T_FIN_MIN)
+    
+
+    #df_filtrado_tarifa_nal = self.df_tarifas_nacionales[['TARIFA']].query('@cond1 & @cond2 & @cond3')
+    tarifa_x = self.busca_tarifa_por_sede_hora(plaza, hora, minuto)
+    
+    #df_filtrado_tarifa_nal = self.df_tarifas[['TARIFA']].query('@cond1 & @cond2 & @cond3')
+  
     ## DEBUG print(f'filtrado antes: {df_filtrado_tarifa_nal}')
-    result = df_filtrado_tarifa_nal.TARIFA.values[0]
+    
     ## DEBUG print(f'filtrado: {result}')
     #print(result)
 
-    return result
+    return tarifa_x
 ## fin del método
 
 # Método para recuperar la Tarifa usando el CANAL como argumento
@@ -411,6 +435,7 @@ class SpotsClassifier:
 ## fin del método
 
 # Función para recuperar la Tarifa usando el CANAL como argumento
+  
   def nacional(self, hora):
     tarifa_x = self.busca_tarifa_en_nacional_hora(hora)
     ##print(f'Tarifa a aplicar: {tarifa_x}')
@@ -453,9 +478,27 @@ class SpotsClassifier:
       ##else:
       ##  print('.' , end="")
 
-      self.df_test3.loc[i,'TARIFA'] = self.determina_tarifa_local(canal, hora, minuto) * factor
+      if alcance == 'LOCAL':
+        self.df_test3.loc[i,'TARIFA'] = self.determina_tarifa_local(canal, hora, minuto) * factor  
+      elif alcance == 'NACIONAL':
+        #print(f'Evaluando tarifa NACIONAL alcance:{alcance} - canal: {canal} ')
+        if self.df_test3.loc[i,'CANAL'].__contains__('CANAL1'):
+          canal = 'NACIONAL' + 'CANAL1'
+        elif self.df_test3.loc[i,'CANAL'].__contains__('CANAL9.1'):
+          canal = 'NACIONAL' + 'CANAL9.1'
+        
+        ##self.df_test3.loc[i,'TARIFA'] = self.determina_tarifa_en_nacional_hora(canal, hora, minuto) * factor
+        self.df_test3.loc[i,'TARIFA'] = self.determina_tarifa_local(canal, hora, minuto) * factor 
+        
+      
+      #elif self.df_test3.loc[i,'SELECCIÓN'] == 'NACIONAL':   
+      #  self.df_test3.loc[i,'TARIFA'] = self.determina_tarifa_en_nacional_hora(hora, minuto) * factor
 
       ## print('OK..tarifas actualizadas')
+      ## Cierra el archivo de registro de logs
+      
+    self.file_log.close()
+      
     return self.df_test3
 ## fin del método
 

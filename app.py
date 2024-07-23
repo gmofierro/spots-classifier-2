@@ -97,11 +97,17 @@ def analice():
 
             clasificador.export_to_excel()
             
+            err = clasificador.f_errors()
+            if err > 0:
+                st.write('El archivo de logs..')
+                with  open('./data/_spots_analizer.log','r') as file:
+                    st.write(file.readlines())    
+            
+            
             #df_xlsx = to_excel(df_test3)
         else: 
-            st.write('Suba el archivo de excel con el registro de eventos ..')
-            
-        
+            st.write('revise el archivo de excel con el registro de eventos ..')
+    
         st.write('---')
     return   
 
@@ -125,6 +131,16 @@ def mostrar_tarifas_actuales():
     
     #st.dataframe(df_nacional)
 
+def mostrar_log_eventos():
+    filename_log = ".data/_spots_analizer.log"
+    if path.exists(filename_log) :
+        df_log = pd.read_excel(filename_log, sheet_name='Hoja1')
+        if len(df_log) > 0:  
+            st.write(df_log)       
+        else:           
+            st.write('No hubo eventos de log..')
+   
+
 with st.sidebar:
     selected = option_menu("Main Menu", ["Home", 'Show Tarifas File','Run process', 'Download Result File'], 
         icons=['house', 'gear', 'play', 'play'], menu_icon="cast", default_index=0)
@@ -137,6 +153,9 @@ if selected == 'Run process':
     with st.spinner('Wait for it...'):
         df = analice()    ## incluye cargar el archivo
     st.success('Done!')  
+
+    mostrar_log_eventos()
+    
     #GFM_1 export_file()
     # Bloque 2
 
