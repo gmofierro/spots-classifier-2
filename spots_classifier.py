@@ -472,7 +472,7 @@ class SpotsClassifier:
         found = True  
       else:
         i = i+1
-      print(f'El nombre real del canal es: {result}\n')
+      #print(f'El nombre real del canal es: {result}\n')
     return result
 
 ## método integrador para actualizar la tarifa de cada uno de los registros
