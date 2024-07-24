@@ -343,7 +343,8 @@ class SpotsClassifier:
 
     #self.df_tarifas_nacionales = pd.read_excel(filename_plazas_tarifas, sheet_name='TARIFAS_NACIONALES')
 
-
+    # Se abre la hoja donde están los nombres de los canales que corresponden a cada Televisora 
+    self.df_canales_reales = pd.read_excel(filename_plazas_tarifas, sheet_name='CANALES_REALES')
 
     return 0
 ## fin del métod para configurar archivos para Tarifas
@@ -457,6 +458,23 @@ class SpotsClassifier:
     return factor
 ## fin del método
 
+# Método para buscar el nombre del CANAL cuando es posible nacional 
+  def busca_canal_real(self, canal):
+    
+    found = False
+    len_df = len(self.df_canales_reales)
+    i = 0
+    result = -1
+    while not found and i < len_df:
+      x_canal = self.df_canales_reales.loc[i, 'CANAL_P']      
+      if self.df_canales_reales.loc[i,'CANAL_P'] in canal:
+        result = x_canal 
+        found = True  
+      else:
+        i = i+1
+      print(f'El nombre real del canal es: {result}\n')
+    return result
+
 ## método integrador para actualizar la tarifa de cada uno de los registros
   def actualiza_tarifa(self):
     for i in range(len(self.df_test3)):
@@ -482,10 +500,8 @@ class SpotsClassifier:
         self.df_test3.loc[i,'TARIFA'] = self.determina_tarifa_local(canal, hora, minuto) * factor  
       elif alcance == 'NACIONAL':
         #print(f'Evaluando tarifa NACIONAL alcance:{alcance} - canal: {canal} ')
-        if self.df_test3.loc[i,'CANAL'].__contains__('CANAL1'):
-          canal = 'NACIONAL' + 'CANAL1'
-        elif self.df_test3.loc[i,'CANAL'].__contains__('CANAL9.1'):
-          canal = 'NACIONAL' + 'CANAL9.1'
+        canal_p = self.busca_canal_real(canal)  
+        canal = 'NACIONAL' + canal_p
         
         ##self.df_test3.loc[i,'TARIFA'] = self.determina_tarifa_en_nacional_hora(canal, hora, minuto) * factor
         self.df_test3.loc[i,'TARIFA'] = self.determina_tarifa_local(canal, hora, minuto) * factor 
