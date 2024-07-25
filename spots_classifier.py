@@ -69,7 +69,7 @@ class SpotsClassifier:
     return self.errors
 
   def write_a_log_reg(self, reg):
-    #file_log = open('.data/_spots_analizer.log','a')
+    #file_log = open('./data/_spots_analizer.log','a')
     
     f1 = datetime.now()
     self.file_log.write(f'event: {reg}\n')
@@ -306,11 +306,13 @@ class SpotsClassifier:
 
   ## método que exporta los resultados a archivo de excel
   def export_to_excel(self):
+    
     ## export el archivo df_test3 a excel
     ## SI Se desean eliminar os registros Asociados ('N') desde aquí
-    df_test_SinN = df_test3_sinN = self.df_test3.drop(self.df_test3[(self.df_test3['SELECCIÓN'] =='N')].index);
-    df_test3_sinN.to_excel('./data/df_test3_sinN.xlsx')
-    self.df_test3.to_excel('df_test3.xlsx')
+    #df_test_SinN = df_test3_sinN = self.df_test3.drop(self.df_test3[(self.df_test3['SELECCIÓN'] =='N')].index);
+    df_test3_sinN = self.df_test3.drop(self.df_test3[(self.df_test3['SELECCIÓN'] =='N')].index)
+    df_test3_sinN.to_excel(self.ruta + 'df_test3_sinN.xlsx')
+    self.df_test3.to_excel(self.ruta + 'df_test3.xlsx')
     #GFM print('Se exportó el archivo de resultados: .. df_test3.xlsx')
     return self.df_test3
 
@@ -329,7 +331,9 @@ class SpotsClassifier:
     #self.df_result = self.df_test3[self.df_test3['SELECCIÓN' == 'NACIONAL' AND 'SELECCIÓN' == 'LOCAL']]
     #self.df_no_registros_N = self.df_test3[(self.df_test3['SELECCIÓN'] != 'N')]
     df_test3_sinN = self.df_test3.drop(self.df_test3[(self.df_test3['SELECCIÓN'] =='N')].index)
-    df_test3_sinN.to_excel('./data/df_test3_sinN.xlsx');
+    
+    filename_sin_n = self.ruta + "df_test3_sinN.xlsx"
+    df_test3_sinN.to_excel(filename_sin_n)
     
 
 #### Fin de métodos para implementar el Algoritmo para determinar el ALCANCE
