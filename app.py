@@ -6,7 +6,7 @@ from streamlit_option_menu import option_menu
 #from dev import *
 from spots_classifier import SpotsClassifier
 import pandas as pd
-import plotly.express as px
+#import plotly.express as px
 
 
 st.set_page_config(page_title="Spots Classifier", layout="wide")
