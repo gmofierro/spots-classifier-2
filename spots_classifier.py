@@ -338,6 +338,26 @@ class SpotsClassifier:
 
 #### Fin de métodos para implementar el Algoritmo para determinar el ALCANCE
 
+## Regresa L-V si el día está entre 0-4 y  S-D si es 5-6 
+  def determina_diastr(self, dia):
+    dia_LV = [0, 1,2,3,4]
+    dia_SD = [5,6]
+    if dia in dia_LV:
+      strdia = 'L-V'
+    elif dia in dia_SD:
+      strdia = 'L-D'
+    
+    return strdia
+
+
+  ## Regresa S si es sabado y D si es domingo
+  def es_sabado_o_domingo(self, dia):
+    if dia == 5:
+      dia_o = 'S'
+    elif dia == 6:
+      dia_o = 'D'   
+    return dia_o
+
   def configurar_archivos_para_tarifas(self):
     filename_plazas_tarifas = self.ruta + "Tarifas2024_4_Actualizado.xlsx"
     self.df_tarifas = pd.read_excel(filename_plazas_tarifas, sheet_name='PLAZAS_TARIFAS')
@@ -354,23 +374,55 @@ class SpotsClassifier:
 ## fin del métod para configurar archivos para Tarifas
 
 ## método para ubicar la tarifa de acuerdo a la PLAZA
-  def busca_tarifa_por_sede_hora(self, plaza, hora, minuto):
+  def busca_tarifa_por_sede_hora(self, plaza, hora, minuto, x_dia):
     
+
     cond1 = plaza == self.df_tarifas.PLAZA  ## and canal == self.df_tarifas.ALIAS_CANAL         # ['PLAZA']
     cond2 = (hora * 60 + minuto) >= (self.df_tarifas.T_INICIO_HOR *60 + self.df_tarifas.T_INICIO_MIN )
     #cond2 = hora >= self.df_tarifas.T_INICIO_HOR  and minuto >= self.df_tarifas.T_INICIO_MIN       # ['HOR_INI']
     cond3 = ( hora * 60 + minuto)  < (self.df_tarifas.T_FIN_HOR * 60 + self.df_tarifas.T_FIN_MIN)
     #cond3 = hora < self.df_tarifas.T_FIN_HOR and minuto < self.df_tarifas.T_FIN_MIN               #['HOR_FIN']
 
-    df_filtrado_tarifa = self.df_tarifas[['PLAZA', 'TARIFA']].query('@cond1 & @cond2 & @cond3')
+    
+    df_filtrado_tarifa = self.df_tarifas[['PLAZA', 'TARIFA', 'DIA' ]].query('@cond1 & @cond2 & @cond3')      ## &)   (@cond4 | @cond5) | @cond6')
+  
+    
     ## DEBUG print(f'en busca_tarifa_por_sede_hora: {df_filtrado_tarifa}')
     
+    #DEBUG print(f"Dia desde el DF: {df_filtrado_tarifa}")
     result = -1
     
-    if df_filtrado_tarifa.size > 0 :
-      result = df_filtrado_tarifa.TARIFA.values[0]
+    # EL DataFrame filtrado o resultante arroja varios registros de acuerdo al día 
+    ## Si es L-V o L-D o S-D y se implementa la lógica para determinar cuál de los registros tomar.
+    ## 
+    
+    flag_dia = False
+    i = 0
+    res = df_filtrado_tarifa.DIA.values[0]
+    #if df_filtrado_tarifa.size > 0 :
+    if len(df_filtrado_tarifa) > 0 :
+      while not flag_dia and i < len(df_filtrado_tarifa):
+        if df_filtrado_tarifa.DIA.values[i] == 'L-D' and x_dia in [0,1,2,3,4,5,6]:               
+          res =  df_filtrado_tarifa.TARIFA.values[i]
+          flag_dia = True
+        elif df_filtrado_tarifa.DIA.values[i] == 'V-D' and x_dia in [0,1,2,3,4]:               
+          res =  df_filtrado_tarifa.TARIFA.values[i]
+          flag_dia = True
+        elif df_filtrado_tarifa.DIA.values[i] == 'S-D' and x_dia in [5,6]:
+          res =  df_filtrado_tarifa.TARIFA.values[i]
+          flag_dia = True
+        elif df_filtrado_tarifa.DIA.values[i] == 'S' and x_dia in [5]:
+          res =  df_filtrado_tarifa.TARIFA.values[i]
+          flag_dia = True
+        elif df_filtrado_tarifa.DIA.values[i] == 'D' and x_dia in [6]:
+          res =  df_filtrado_tarifa.TARIFA.values[i]
+          flag_dia = True
+        else:
+          i = i + 1
+      result =  res  #df_filtrado_tarifa.TARIFA.values[i]   
+      #result = df_filtrado_tarifa.TARIFA.values[0]
     else:    
-      msg = 'TARIFA no se encontró -> PLAZA: ' + str(plaza) + ' ' + 'hora:' + ' ' + str(hora) + ' '  + 'minuto:' + ' ' + str(minuto)
+      msg = 'TARIFA no se encontró -> PLAZA: ' + str(plaza) + ' ' + 'hora:' + ' ' + str(hora) + ' '  + 'minuto:' + ' ' + str(minuto)  + ' ' + 'x_str_dia: ' +  x_str_dia +  ' ' + 'x_str_dia_sd: ' +  x_str_dia_sd 
       self.write_a_log_reg(msg)
       
       ##print(f'NO SE ENCONTRÓ LA TARIFA -> plaza: {plaza} - hora: {hora}')
@@ -404,10 +456,9 @@ class SpotsClassifier:
 
 ## método para determinar la tarifa para un evento NACIONAL de acuerdo a la HORA
 
-  def determina_tarifa_en_nacional_hora(self, canal, hora, minuto):
+  def determina_tarifa_en_nacional_hora(self, canal, hora, minuto, x_dia):
     plaza = 'NACIONAL'
-    
-
+  
     #cond1 = plaza == self.df_tarifas_nacionales.PLAZA           # ['PLAZA']
     #cond2 = hora >= self.df_tarifas_nacionales.T_INICIO_HOR         # ['HOR_INI']
     #cond3 = hora < self.df_tarifas_nacionales.T_FIN_HOR                 #['HOR_FIN']
@@ -417,9 +468,15 @@ class SpotsClassifier:
     #cond2 = hora >= self.df_tarifas.T_INICIO_HOR  and minuto >= self.df_tarifas.T_INICIO_MIN       # ['HOR_INI']
     cond3 = ( hora * 60 + minuto)  < (self.df_tarifas.T_FIN_HOR * 60 + self.df_tarifas.T_FIN_MIN)
     
+    x_str_dia = self.determina_diastr(x_dia) 
+    if x_str_dia == 'S-D':
+      x_str_dia_sd = self.es_sabado_o_domingo(x_dia)
+
+    cond4 = x_str_dia == self.df_tarifas.DIA or x_str_dia_sd == self.df_tarifas.DIA  
+    
 
     #df_filtrado_tarifa_nal = self.df_tarifas_nacionales[['TARIFA']].query('@cond1 & @cond2 & @cond3')
-    tarifa_x = self.busca_tarifa_por_sede_hora(plaza, hora, minuto)
+    tarifa_x = self.busca_tarifa_por_sede_hora(plaza, hora, minuto, dia_evento)
     
     #df_filtrado_tarifa_nal = self.df_tarifas[['TARIFA']].query('@cond1 & @cond2 & @cond3')
   
@@ -432,10 +489,10 @@ class SpotsClassifier:
 ## fin del método
 
 # Método para recuperar la Tarifa usando el CANAL como argumento
-  def determina_tarifa_local(self, canal, hora, minuto):
+  def determina_tarifa_local(self, canal, hora, minuto, dia_evento):
     ## DEBUG print(f'Buscando tarifa: canal: {canal} - hora: {hora}')
     plaza = self.busca_plaza_por_canal(canal)
-    tarifa_x = self.busca_tarifa_por_sede_hora(plaza, hora, minuto)
+    tarifa_x = self.busca_tarifa_por_sede_hora(plaza, hora, minuto, dia_evento)
     return tarifa_x
 ## fin del método
 
@@ -486,6 +543,7 @@ class SpotsClassifier:
       version = self.df_test3.loc[i,'VERSION']
       fecha = self.df_test3.loc[i,'FECHA_NEW']
       alcance = self.df_test3.loc[i,'SELECCIÓN']
+      dia_evento = fecha.weekday()
       hora = fecha.hour
       minuto = fecha.minute
 
@@ -501,14 +559,14 @@ class SpotsClassifier:
       ##  print('.' , end="")
 
       if alcance == 'LOCAL':
-        self.df_test3.loc[i,'TARIFA'] = self.determina_tarifa_local(canal, hora, minuto) * factor  
+        self.df_test3.loc[i,'TARIFA'] = self.determina_tarifa_local(canal, hora, minuto, dia_evento) * factor  
       elif alcance == 'NACIONAL':
         #print(f'Evaluando tarifa NACIONAL alcance:{alcance} - canal: {canal} ')
         canal_p = self.busca_canal_real(canal)  
         canal = 'NACIONAL' + canal_p
         
         ##self.df_test3.loc[i,'TARIFA'] = self.determina_tarifa_en_nacional_hora(canal, hora, minuto) * factor
-        self.df_test3.loc[i,'TARIFA'] = self.determina_tarifa_local(canal, hora, minuto) * factor 
+        self.df_test3.loc[i,'TARIFA'] = self.determina_tarifa_local(canal, hora, minuto, dia_evento) * factor 
         
       
       #elif self.df_test3.loc[i,'SELECCIÓN'] == 'NACIONAL':   
