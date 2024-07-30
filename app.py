@@ -120,7 +120,7 @@ def mostrar_tarifas_actuales():
         st.write('---')
         st.write('Las tarifas actuales ..')
         
-        filename_plazas_tarifas = "./data/" + "Tarifas2024_4_Actualizado.xlsx"
+        filename_plazas_tarifas = "./data/" + "Tarifas2024_26_07_v2.xlsx"
         df_tx = pd.read_excel(filename_plazas_tarifas, sheet_name='PLAZAS_TARIFAS')
         
         #df_tx1 = df_tx[['ID', 'CANAL', 'CIUDAD', 'TARIFA', 'TELEVISORA', 'HORARIO', 'DIA']]
@@ -167,7 +167,9 @@ def reporte_anunciantes_televisora():
         df_anunciantes = pd.read_excel(filename_anunciantes, sheet_name='Sheet1')
         df_anunciantes_2 =df_anunciantes[['CANAL', 'MARCA', 'SELECCIÓN', 'TARIFA']] 
         
-        filename_plazas_tarifas = ruta + "Tarifas2024_4_Actualizado.xlsx"
+        #filename_plazas_tarifas = ruta + "Tarifas2024_4_Actualizado.xlsx"
+        filename_plazas_tarifas = ruta + "Tarifas2024_26_07_v2.xlsx"
+        
         df_televisora_canal = pd.read_excel(filename_plazas_tarifas, sheet_name='TELEVISORA_CANAL')
         #print(df_televisora_canal)
 

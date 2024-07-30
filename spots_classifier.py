@@ -303,6 +303,22 @@ class SpotsClassifier:
     return 0
 
     #### fin determina nivdel de alcance
+    
+  def determina_eventos_tipo_MEGAPLAZA(self):
+    print(self.lista_nacionales)
+    print(self.lista_asociados)
+    lista_new = []
+    start = 0
+    ## si el resultado ya se tiene en df_test3, ahora lo recorremos y formamos una lista para cada nacional con sus N
+    enum_nacionales = enumerate(self.lista_nacionales)
+    enum_asociados = enumerate(self.lista_asociados)
+    print('--inicio---')
+    #print(enum_nacionales[0:1])
+
+     
+      
+    
+
 
   ## método que exporta los resultados a archivo de excel
   def export_to_excel(self):
@@ -318,10 +334,12 @@ class SpotsClassifier:
 
   def actualiza_alcance_eventos(self):
     ## GFM_1 self.df_test3.loc[:, 'SELECCIÓN'] = ""
+    
     self.df_test3['SELECCIÓN'] = None
     #self.df_test3=self.df_test3['SELECCIÓN'].astype(str)
     self.df_test3.loc[:, 'SELECCIÓN'] = ""
     self.determina_nivel_alcance()
+    ## self.determina_eventos_tipo_MEGAPLAZA()
     self.actualiza_alcance_para_nacionales()
     self.actualiza_alcance_para_asociados()
     self.actualiza_alcance_para_locales()
@@ -340,7 +358,7 @@ class SpotsClassifier:
 
 ## Regresa L-V si el día está entre 0-4 y  S-D si es 5-6 
   def determina_diastr(self, dia):
-    dia_LV = [0, 1,2,3,4]
+    dia_LV = [0, 1, 2, 3, 4]
     dia_SD = [5,6]
     if dia in dia_LV:
       strdia = 'L-V'
@@ -359,7 +377,8 @@ class SpotsClassifier:
     return dia_o
 
   def configurar_archivos_para_tarifas(self):
-    filename_plazas_tarifas = self.ruta + "Tarifas2024_4_Actualizado.xlsx"
+    #filename_plazas_tarifas = self.ruta + "Tarifas2024_4_Actualizado.xlsx"
+    filename_plazas_tarifas = self.ruta + "Tarifas2024_26_07_v2.xlsx"
     self.df_tarifas = pd.read_excel(filename_plazas_tarifas, sheet_name='PLAZAS_TARIFAS')
 
     #filename_plazas_canales = "/content/drive/MyDrive/proy_anun/tarifas_GFM.xlsx"
@@ -402,10 +421,13 @@ class SpotsClassifier:
     #if df_filtrado_tarifa.size > 0 :
     if len(df_filtrado_tarifa) > 0 :
       while not flag_dia and i < len(df_filtrado_tarifa):
+        x_str_dia = df_filtrado_tarifa.DIA.values[i]
+        
         if df_filtrado_tarifa.DIA.values[i] == 'L-D' and x_dia in [0,1,2,3,4,5,6]:               
           res =  df_filtrado_tarifa.TARIFA.values[i]
+          
           flag_dia = True
-        elif df_filtrado_tarifa.DIA.values[i] == 'V-D' and x_dia in [0,1,2,3,4]:               
+        elif df_filtrado_tarifa.DIA.values[i] == 'L-V' and x_dia in [0,1,2,3,4]:                
           res =  df_filtrado_tarifa.TARIFA.values[i]
           flag_dia = True
         elif df_filtrado_tarifa.DIA.values[i] == 'S-D' and x_dia in [5,6]:
@@ -419,10 +441,16 @@ class SpotsClassifier:
           flag_dia = True
         else:
           i = i + 1
-      result =  res  #df_filtrado_tarifa.TARIFA.values[i]   
+      if res >= 0:
+        result =  res  #df_filtrado_tarifa.TARIFA.values[i]
+      else:
+        msg = 'TARIFA no encontrada -> PLAZA: ' + str(plaza) + ' ' + ' hora: ' + ' ' + str(hora) + ' '  + ' minuto:' + ' ' + str(minuto)  + ' ' + ' x_str_dia: ' +  x_str_dia + ' dia: ' + str(x_dia) 
+        #print (f'no se encontró la tarifa para la plaza: {plaza} -  hora: {hora} - min: {minuto} y dia: {x_dia}')
+        print(msg)
+        result = 0     
       #result = df_filtrado_tarifa.TARIFA.values[0]
     else:    
-      msg = 'TARIFA no se encontró -> PLAZA: ' + str(plaza) + ' ' + 'hora:' + ' ' + str(hora) + ' '  + 'minuto:' + ' ' + str(minuto)  + ' ' + 'x_str_dia: ' +  x_str_dia +  ' ' + 'x_str_dia_sd: ' +  x_str_dia_sd 
+      msg = 'TARIFA no se encontró -> PLAZA: ' + str(plaza) + ' ' + 'hora:' + ' ' + str(hora) + ' '  + 'minuto:' + ' ' + str(minuto)  + ' ' + 'x_str_dia: ' +  x_str_dia  
       self.write_a_log_reg(msg)
       
       ##print(f'NO SE ENCONTRÓ LA TARIFA -> plaza: {plaza} - hora: {hora}')
@@ -476,7 +504,7 @@ class SpotsClassifier:
     
 
     #df_filtrado_tarifa_nal = self.df_tarifas_nacionales[['TARIFA']].query('@cond1 & @cond2 & @cond3')
-    tarifa_x = self.busca_tarifa_por_sede_hora(plaza, hora, minuto, dia_evento)
+    tarifa_x = self.busca_tarifa_por_sede_hora(plaza, hora, minuto, x_dia)
     
     #df_filtrado_tarifa_nal = self.df_tarifas[['TARIFA']].query('@cond1 & @cond2 & @cond3')
   
@@ -493,6 +521,7 @@ class SpotsClassifier:
     ## DEBUG print(f'Buscando tarifa: canal: {canal} - hora: {hora}')
     plaza = self.busca_plaza_por_canal(canal)
     tarifa_x = self.busca_tarifa_por_sede_hora(plaza, hora, minuto, dia_evento)
+    #print(f'determina_tarifa local -> tarifa: {tarifa_x} - {plaza} - {hora} - {minuto} - {dia_evento}')
     return tarifa_x
 ## fin del método
 
@@ -562,10 +591,14 @@ class SpotsClassifier:
         self.df_test3.loc[i,'TARIFA'] = self.determina_tarifa_local(canal, hora, minuto, dia_evento) * factor  
       elif alcance == 'NACIONAL':
         #print(f'Evaluando tarifa NACIONAL alcance:{alcance} - canal: {canal} ')
+
         canal_p = self.busca_canal_real(canal)  
+        #print(f'at. tarifa: CANAL REAL {canal}- {version} - {fecha} - {dia_evento} ')
+
         canal = 'NACIONAL' + canal_p
         
         ##self.df_test3.loc[i,'TARIFA'] = self.determina_tarifa_en_nacional_hora(canal, hora, minuto) * factor
+        #print(f'at. tarifa {canal}- {hora} - {minuto} -{dia_evento} - {factor}')
         self.df_test3.loc[i,'TARIFA'] = self.determina_tarifa_local(canal, hora, minuto, dia_evento) * factor 
         
       
@@ -583,7 +616,9 @@ class SpotsClassifier:
 
 
 def consulta_archivo_plazas_tarifas(self):
-  filename_plazas_tarifas = self.ruta + "Tarifas2024_4_Actualizado.xlsx"
+  #filename_plazas_tarifas = self.ruta + "Tarifas2024_4_Actualizado.xlsx"
+  filename_plazas_tarifas = self.ruta + "Tarifas2024_26_07_v2.xlsx"
+  
   self.df_tarifas = pd.read_excel(filename_plazas_tarifas, sheet_name='PLAZAS_TARIFAS')
   
   return self.df_tarifas
